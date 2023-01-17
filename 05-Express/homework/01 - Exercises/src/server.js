@@ -26,7 +26,6 @@ const server = express();
 // to enable parsing of json bodies for post requests
 server.use(express.json());
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 server.post("/posts", (req, res) => {
   const { author, title, contents } = req.body;
@@ -51,26 +50,32 @@ server.post("/posts", (req, res) => {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-server.get("/posts?author=author?title=title", (req, res)=>{
-  const {author, title} = req.query
-  if(!author || !title){
-    res.status(400).json({error: "No existe ninguna publicación con dicho título y autor indicado"})
-  }else{
-    const search = publications.filter(ele => ele.author === author || ele.title=== title)
-    res.status(200).json(search)
-  }
-})
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 server.get("/posts", (req, res) => {
-  const { term } = req.query;
+  const { term, author, title } = req.query;
 
-  if (req.url.includes(term)) {
-    const seachTerm = publications.filter(
+  if (term) {
+    const searchTerm = publications.filter(
       (post) => post.title.includes(term) || post.contents.includes(term)
     );
-    res.status(200).json(seachTerm);
+    if (searchTerm.length > 0) {
+      res.status(200).json(searchTerm);
+    } else {
+      res.status(200).json(publications);
+    }
+  } else if (author && title) {
+    const search = publications.filter(
+      (post) => post.title === title && post.author === author
+    );
+    if (search.length > 0) {
+      res.status(200).json(search);
+    } else {
+      res
+        .status(400)
+        .json({
+          error:
+            "No existe ninguna publicación con dicho título y autor indicado",
+        });
+    }
   } else {
     res.status(200).json(publications);
   }
@@ -96,19 +101,15 @@ server.put("/posts/:id", (req, res) => {
   const index = publications.find((ele) => ele.id === Number(id));
 
   if (!title || !contents) {
-    res
-      .status(400)
-      .json({
-        error:
-          "No se recibieron los parámetros necesarios para modificar la publicación",
-      });
+    res.status(400).json({
+      error:
+        "No se recibieron los parámetros necesarios para modificar la publicación",
+    });
   } else if (!index) {
-    res
-      .status(400)
-      .json({
-        error:
-          "No se recibió el id correcto necesario para modificar la publicación",
-      });
+    res.status(400).json({
+      error:
+        "No se recibió el id correcto necesario para modificar la publicación",
+    });
   } else {
     const renamePublication = {
       ...publications,
@@ -126,37 +127,48 @@ server.delete("/posts/:id", (req, res) => {
   const searchId = publications.find((ele) => ele.id === id);
 
   if (!id) {
-    res.status(400).json({ error: "No se recibió el id de la publicación a eliminar" });
-  } else if(!searchId){
-    res.status(400).json({error: "No se recibió el id correcto necesario para eliminar la publicación"})
-  }else{
-    const deletePublication = publications.find(ele => ele.id !== id)
-    res.status(200).json({ success: true })
+    res
+      .status(400)
+      .json({ error: "No se recibió el id de la publicación a eliminar" });
+  } else if (!searchId) {
+    res
+      .status(400)
+      .json({
+        error:
+          "No se recibió el id correcto necesario para eliminar la publicación",
+      });
+  } else {
+    const deletePublication = publications.find((ele) => ele.id !== id);
+    res.status(200).json({ success: true });
   }
 });
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-server.delete("/author/:name", (req, res)=>{
-  const {name} = req.params
+server.delete("/author/:name", (req, res) => {
+  const { name } = req.params;
   // console.log(name)
-  const validateName=publications.filter(ele => ele.author === name)
+  const validateName = publications.filter((ele) => ele.author === name);
   // console.log(validateName);
 
-  if(!name){
-    return res.status(400).json({error: "No se recibió el nombre del autor"})
-  }else if(!validateName){
-    return res.status(400).json({error: "No se recibió el nombre correcto necesario para eliminar las publicaciones del autor"})    
-  }else{
-    const deleteName= publications.filter(ele => ele.author !== name)
-    // console.log("array que se elimina ===>",validateName); //me retorna los autores que coinciden   
+  if (!name) {
+    return res.status(400).json({ error: "No se recibió el nombre del autor" });
+  } else if (!validateName) {
+    return res
+      .status(400)
+      .json({
+        error:
+          "No se recibió el nombre correcto necesario para eliminar las publicaciones del autor",
+      });
+  } else {
+    const deleteName = publications.filter((ele) => ele.author !== name);
+    // console.log("array que se elimina ===>",validateName); //me retorna los autores que coinciden
     // console.log("array restante ===>",deleteName);
-    res.status(200).json(validateName)    
+    res.status(200).json(validateName);
   }
-})
+});
 
 //NO MODIFICAR EL CODIGO DE ABAJO. SE USA PARA EXPORTAR EL SERVIDOR Y CORRER LOS TESTS
 module.exports = { publications, server };
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
