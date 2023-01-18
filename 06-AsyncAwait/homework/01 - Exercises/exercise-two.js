@@ -18,6 +18,7 @@ args.forEach(function (arg) {
   let problem = module.exports["problem" + arg];
   if (problem) problem();
 });
+//////////////////////////////////////////////////////////////////////////////////
 
 async function problemA() {
   // callback version
@@ -30,7 +31,20 @@ async function problemA() {
 
   // async await version
   // Tu código acá:
+  const stanza01 = await exerciseUtils.promisifiedReadFile("poem-one/stanza-01.txt")
+  const stanza02 = await exerciseUtils.promisifiedReadFile("poem-one/stanza-02.txt")
+
+  const arrayPromise = [stanza01, stanza02]
+
+  Promise.all(arrayPromise)
+    .then((stanza)=>{
+      exerciseUtils.blue(stanza[0])
+      exerciseUtils.blue(stanza[1])
+      console.log("done");
+    })
 }
+
+//////////////////////////////////////////////////////////////////////////////////
 
 async function problemB() {
   let filenames = [1, 2, 3, 4, 5, 6, 7, 8].map(function (n) {
@@ -46,7 +60,16 @@ async function problemB() {
 
   // async await version
   // Tu código acá:
+  filenames.forEach((file)=>{
+    exerciseUtils.promisifiedReadFile(file)
+      .then((stanza)=>{
+        exerciseUtils.blue(stanza)
+        console.log("done");
+      })
+  })
 }
+
+//////////////////////////////////////////////////////////////////////////////////
 
 async function problemC() {
   let filenames = [1, 2, 3, 4, 5, 6, 7, 8].map(function (n) {
@@ -62,7 +85,18 @@ async function problemC() {
 
   // async await version
   // Tu código acá:
+  let array=exerciseUtils.promisifiedReadFile(filenames)
+
+  Promise.all( array )
+    .then((stanza)=>{
+      for(let i=0; i<=array.length;i++){
+        exerciseUtils.blue(stanza[i])
+        console.log("done");
+      }
+    })
 }
+
+//////////////////////////////////////////////////////////////////////////////////
 
 async function problemD() {
   let filenames = [1, 2, 3, 4, 5, 6, 7, 8].map(function (n) {
@@ -81,4 +115,17 @@ async function problemD() {
 
   // async await version
   // Tu código acá:
+  
+  let array=exerciseUtils.promisifiedReadFile(filenames)
+  try {
+    Promise.all( array )
+      .then((stanza)=>{
+        for(let i=0; i<=array.length;i++){
+          exerciseUtils.blue(stanza[i])
+          console.log("done");
+        }
+      })
+  } catch (error) {
+    exerciseUtils.magenta(new Error(error))      
+  }
 }
