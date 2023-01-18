@@ -85,7 +85,7 @@ async function problemC() {
 
   // async await version
   // Tu código acá:
-  let array=exerciseUtils.promisifiedReadFile(filenames)
+  let array=await exerciseUtils.promisifiedReadFile(filenames)
 
   Promise.all( array )
     .then((stanza)=>{
@@ -116,8 +116,8 @@ async function problemD() {
   // async await version
   // Tu código acá:
   
-  let array=exerciseUtils.promisifiedReadFile(filenames)
   try {
+    let array = await exerciseUtils.promisifiedReadFile(filenames)
     Promise.all( array )
       .then((stanza)=>{
         for(let i=0; i<=array.length;i++){
